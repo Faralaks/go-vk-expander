@@ -100,7 +100,7 @@ func MakeSortedTree(treeMaker dialogTreeMaker) (DialogTree, error) {
 	return tree, nil
 }
 
-func Run(p string) {
+func Extract(p string) {
 	if _, err := os.Stat(filepath.Join(p, "messages")); err != nil {
 		log.Printf("[ERROR] No such directory as " + p)
 		return

@@ -45,11 +45,6 @@ func main() {
 	log.Printf("[DEBUG] Config: %+v", config)
 
 	go func() {
-		if x := recover(); x != nil {
-			log.Printf("[WARN] run time panic:\n%v", x)
-			panic(x)
-		}
-
 		// catch signal and invoke graceful termination
 		stop := make(chan os.Signal, 1)
 		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
@@ -63,7 +58,7 @@ func main() {
 
 // run: Starts working process. Takes path ro vk messages directory
 func run(path string) {
-	extractor.Run(path)
+	extractor.Extract(path)
 }
 
 func setupLog(debug bool) {
