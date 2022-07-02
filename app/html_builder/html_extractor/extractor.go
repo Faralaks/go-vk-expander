@@ -6,22 +6,25 @@ package html_extractor
 import (
 	"fmt"
 	log "github.com/go-pkgz/lgr"
-	"io/fs"
 	"io/ioutil"
 )
 
-type Files []fs.FileInfo
+type Files []string
 
 func GetFiles(p string) (Files, error) {
+	res := make(Files, 0)
 	files, err := ioutil.ReadDir(p)
 	if err != nil {
 		log.Printf("[DEBUG] Could not read \"%s\" directory | %v", p, err)
-		return files, fmt.Errorf("could not read \"%s\" directory | %v", p, err)
+		return res, fmt.Errorf("could not read \"%s\" directory | %v", p, err)
 	}
-	return files, nil
+	for _, file := range files {
+		res = append(res, file.Name())
+	}
+	return res, nil
 }
 
-func isNameInList(name string, list []string) bool {
+func IsNameInList(name string, list []string) bool {
 	for _, listName := range list {
 		if name == listName {
 			return true
@@ -31,13 +34,14 @@ func isNameInList(name string, list []string) bool {
 	return false
 }
 
-func (f Files) ExcludeFilenames(blackList []string) {
+func (f Files) ExcludeFilenames(blackList []string) Files {
 	res := make(Files, 0)
-	for _, file := range f {
-		if !isNameInList(file.Name(), blackList) {
-			res = append(res, file)
+	for _, name := range f {
+		if !IsNameInList(name, blackList) {
+			res = append(res, name)
 		}
 	}
+	return res
 }
 
 func Extract(p string) error {
