@@ -58,7 +58,7 @@ func main() {
 
 // run: Starts working process. Takes path ro vk messages directory
 func run(path string) {
-	extractor.Extract(path)
+	_ = extractor.Extract(path)
 }
 
 func setupLog(debug bool) {
