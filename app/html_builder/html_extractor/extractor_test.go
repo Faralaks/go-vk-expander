@@ -20,5 +20,15 @@ func TestFiles_ExcludeFilenames(t *testing.T) {
 
 	res = files.ExcludeFilenames([]string{"homer"})
 	assert.EqualValues(t, Files{"bob", "bob", "rob", "robert", "bert"}, res)
+}
 
+func TestGetNumFromMsgFilename(t *testing.T) {
+	// Good Way
+	res, err := GetNumFromMsgFilename("message321.html")
+	assert.Equal(t, 321, res)
+	assert.Nil(t, err)
+
+	// Bad Way
+	res, err = GetNumFromMsgFilename("")
+	assert.NotNil(t, err)
 }

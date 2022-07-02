@@ -7,6 +7,8 @@ import (
 	"fmt"
 	log "github.com/go-pkgz/lgr"
 	"io/ioutil"
+	"strconv"
+	"strings"
 )
 
 type Files []string
@@ -32,6 +34,11 @@ func IsNameInList(name string, list []string) bool {
 	}
 
 	return false
+}
+
+func GetNumFromMsgFilename(name string) (int, error) {
+	num := strings.TrimPrefix(strings.TrimSuffix(name, ".html"), "message")
+	return strconv.Atoi(num)
 }
 
 func (f Files) ExcludeFilenames(blackList []string) Files {
