@@ -7,9 +7,13 @@ import (
 	"fmt"
 	log "github.com/go-pkgz/lgr"
 	"io/ioutil"
+	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
+
+var excludeDSStore = []string{".DS_Store"}
 
 type Files []string
 
@@ -37,8 +41,20 @@ func IsNameInList(name string, list []string) bool {
 }
 
 func GetNumFromMsgFilename(name string) (int, error) {
-	num := strings.TrimPrefix(strings.TrimSuffix(name, ".html"), "message")
+	num := strings.TrimPrefix(strings.TrimSuffix(name, ".html"), "messages")
 	return strconv.Atoi(num)
+}
+
+func (f Files) SortByNumber() Files {
+	sort.Slice(f, func(i, j int) bool {
+		iNum, iErr := GetNumFromMsgFilename(f[i])
+		jNum, jErr := GetNumFromMsgFilename(f[j])
+		if iErr != nil || jErr != nil {
+			panic(fmt.Errorf("Could not take int number from one of files (\"%s\", \"%s\") with following errors iErr: %v, jErr: %v", f[i], f[j], iErr, jErr))
+		}
+		return iNum < jNum
+	})
+	return f
 }
 
 func (f Files) ExcludeFilenames(blackList []string) Files {
@@ -52,7 +68,27 @@ func (f Files) ExcludeFilenames(blackList []string) Files {
 }
 
 func Extract(p string) error {
-	println(p)
+	dialogs := make(map[string]Files)
+	dialogList, err := GetFiles(p)
+	if err != nil {
+		log.Printf("[ERROR] Could not get files from message folder | ", err)
+		return fmt.Errorf("Could not get files from message folder | ", err)
+	}
+	dialogList = dialogList.ExcludeFilenames(excludeDSStore)
+	for _, dialog := range dialogList {
+		msgList, err := GetFiles(filepath.Join(p, dialog))
+		if err != nil {
+			log.Printf("[ERROR] Could not get files from message folder | ", err)
+			return fmt.Errorf("Could not get files from message folder | ", err)
+		}
+		msgList = msgList.ExcludeFilenames(excludeDSStore)
+		msgList = msgList.SortByNumber()
+		dialogs[dialog] = msgList
+	}
+	for k, v := range dialogs {
+		fmt.Printf("Dialog: %v, Filse: %v\n", k, v)
+	}
+
 	return nil
 
 }

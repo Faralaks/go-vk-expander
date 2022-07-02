@@ -52,7 +52,7 @@ func main() {
 		log.Printf("[WARN] interrupt signal")
 	}()
 
-	run("Archive")
+	run("Archive/messages")
 	println("\t <--- Faralaks Vk-Expander finished!!!")
 }
 

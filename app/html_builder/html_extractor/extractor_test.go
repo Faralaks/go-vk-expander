@@ -24,11 +24,18 @@ func TestFiles_ExcludeFilenames(t *testing.T) {
 
 func TestGetNumFromMsgFilename(t *testing.T) {
 	// Good Way
-	res, err := GetNumFromMsgFilename("message321.html")
+	res, err := GetNumFromMsgFilename("messages321.html")
 	assert.Equal(t, 321, res)
 	assert.Nil(t, err)
 
 	// Bad Way
 	res, err = GetNumFromMsgFilename("")
 	assert.NotNil(t, err)
+}
+
+func TestFiles_SortByNumber(t *testing.T) {
+	files := Files{"messages50.html", "messages0.html", "messages100.html"}
+	res := files.SortByNumber()
+	assert.EqualValues(t, Files{"messages0.html", "messages50.html", "messages100.html"}, res)
+
 }
