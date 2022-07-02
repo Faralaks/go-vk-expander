@@ -1,5 +1,8 @@
 # github.com/PuerkitoBio/goquery v1.8.0
 ## explicit
+# github.com/go-pkgz/lgr v0.10.4
+## explicit
+github.com/go-pkgz/lgr
 # github.com/gorilla/mux v1.8.0
 ## explicit
 # github.com/umputun/go-flags v1.5.1
