@@ -8,12 +8,13 @@ type MsgFiles []string
 // Dialog presents messages file list from one dialog amd following mutex
 // implements file_decoder.FileListGetter
 type Dialog struct {
+	Decoded bool
 	MsgFiles
 	sync.Mutex
 }
 
 func NewDialog(msgFiles MsgFiles) *Dialog {
-	return &Dialog{MsgFiles: msgFiles}
+	return &Dialog{Decoded: false, MsgFiles: msgFiles}
 }
 
 // GetFileList returns list of msg filenames
