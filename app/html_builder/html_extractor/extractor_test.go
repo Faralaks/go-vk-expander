@@ -35,7 +35,7 @@ func TestGetNumFromMsgFilename(t *testing.T) {
 
 func TestFiles_SortByNumber(t *testing.T) {
 	files := Files{"messages50.html", "messages0.html", "messages100.html"}
-	res := files.SortByNumber()
+	res := SortByNumber(files)
 	assert.EqualValues(t, Files{"messages0.html", "messages50.html", "messages100.html"}, res)
 
 }

@@ -45,7 +45,7 @@ func GetNumFromMsgFilename(name string) (int, error) {
 	return strconv.Atoi(num)
 }
 
-func (f Files) SortByNumber() Files {
+func SortByNumber(f Files) Files {
 	sort.Slice(f, func(i, j int) bool {
 		iNum, iErr := GetNumFromMsgFilename(f[i])
 		jNum, jErr := GetNumFromMsgFilename(f[j])
@@ -82,7 +82,7 @@ func Extract(p string) error {
 			return fmt.Errorf("could not get files from message folder | %v", err)
 		}
 		msgList = ExcludeFilenames(msgList, excludeDSStore)
-		msgList = msgList.SortByNumber()
+		msgList = SortByNumber(msgList)
 		dialogs[dialog] = msgList
 	}
 	for k, v := range dialogs {
