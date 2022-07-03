@@ -21,6 +21,7 @@ var excludeDSStore = []string{".DS_Store"}
 type MsgFiles []string
 
 // Dialog presents messages file list from one dialog amd following mutex
+// implements file_decoder.FileListGetter
 type Dialog struct {
 	MsgFiles
 	sync.Mutex
@@ -28,6 +29,10 @@ type Dialog struct {
 
 func NewDialog(msgFiles MsgFiles) Dialog {
 	return Dialog{MsgFiles: msgFiles}
+}
+
+func (d *Dialog) GetFileList() []string {
+	return d.MsgFiles
 }
 
 // GetFiles returns list of all files in specified folder
