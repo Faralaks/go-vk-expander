@@ -15,10 +15,10 @@ func TestIsNameInList(t *testing.T) {
 
 func TestFiles_ExcludeFilenames(t *testing.T) {
 	files := Files{"bob", "bob", "rob", "robert", "bert"}
-	res := files.ExcludeFilenames([]string{"bob", "rob"})
+	res := ExcludeFilenames(files, []string{"bob", "rob"})
 	assert.EqualValues(t, Files{"robert", "bert"}, res)
 
-	res = files.ExcludeFilenames([]string{"homer"})
+	res = ExcludeFilenames(files, []string{"homer"})
 	assert.EqualValues(t, Files{"bob", "bob", "rob", "robert", "bert"}, res)
 }
 

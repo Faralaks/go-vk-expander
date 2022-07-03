@@ -50,14 +50,14 @@ func (f Files) SortByNumber() Files {
 		iNum, iErr := GetNumFromMsgFilename(f[i])
 		jNum, jErr := GetNumFromMsgFilename(f[j])
 		if iErr != nil || jErr != nil {
-			panic(fmt.Errorf("Could not take int number from one of files (\"%s\", \"%s\") with following errors iErr: %v, jErr: %v", f[i], f[j], iErr, jErr))
+			panic(fmt.Errorf("could not take int number from one of files (\"%s\", \"%s\") with following errors iErr: %v, jErr: %v", f[i], f[j], iErr, jErr))
 		}
 		return iNum < jNum
 	})
 	return f
 }
 
-func (f Files) ExcludeFilenames(blackList []string) Files {
+func ExcludeFilenames(f Files, blackList []string) Files {
 	res := make(Files, 0)
 	for _, name := range f {
 		if !IsNameInList(name, blackList) {
@@ -71,17 +71,17 @@ func Extract(p string) error {
 	dialogs := make(map[string]Files)
 	dialogList, err := GetFiles(p)
 	if err != nil {
-		log.Printf("[ERROR] Could not get files from message folder | ", err)
-		return fmt.Errorf("Could not get files from message folder | ", err)
+		log.Printf("[ERROR] Could not get files from message folder | %v", err)
+		return fmt.Errorf("could not get files from message folder | %v", err)
 	}
-	dialogList = dialogList.ExcludeFilenames(excludeDSStore)
+	dialogList = ExcludeFilenames(dialogList, excludeDSStore)
 	for _, dialog := range dialogList {
 		msgList, err := GetFiles(filepath.Join(p, dialog))
 		if err != nil {
-			log.Printf("[ERROR] Could not get files from message folder | ", err)
-			return fmt.Errorf("Could not get files from message folder | ", err)
+			log.Printf("[ERROR] Could not get files from message folder | %v", err)
+			return fmt.Errorf("could not get files from message folder | %v", err)
 		}
-		msgList = msgList.ExcludeFilenames(excludeDSStore)
+		msgList = ExcludeFilenames(msgList, excludeDSStore)
 		msgList = msgList.SortByNumber()
 		dialogs[dialog] = msgList
 	}
