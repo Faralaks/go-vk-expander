@@ -1,6 +1,7 @@
 package html_extractor
 
 import (
+	"context"
 	. "github.com/faralaks/go-vk-expander/app/html_builder/dialog_files"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -39,4 +40,17 @@ func TestSortByNumber(t *testing.T) {
 	res := SortByNumber(files)
 	assert.EqualValues(t, MsgFiles{"messages0.html", "messages50.html", "messages100.html"}, res)
 
+}
+
+type mockDecoderRunner struct{}
+
+func (_ mockDecoderRunner) Run(_ context.Context, _ chan *Dialog) {
+	return
+}
+
+func TestCreateDecoderRunners(t *testing.T) {
+	ctx := context.Background()
+	resType := CreateDecoderRunners(ctx, mockDecoderRunner{}, 2)
+	var expType chan *Dialog
+	assert.IsType(t, expType, resType)
 }
