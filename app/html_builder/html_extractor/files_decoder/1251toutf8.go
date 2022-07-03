@@ -20,7 +20,10 @@ func (d DecoderWin1251ToUTF8) Run(ctx context.Context, dialogsChan chan *Dialog)
 			println("done!")
 			return
 		case dialog := <-dialogsChan:
+			dialog.Lock()
+			defer dialog.Unlock()
 			println(dialog.GetFileList()[0])
+
 		}
 	}
 }
