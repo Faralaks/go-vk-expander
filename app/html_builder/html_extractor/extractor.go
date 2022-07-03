@@ -15,12 +15,12 @@ import (
 
 var excludeDSStore = []string{".DS_Store"}
 
-// Files will be presents list of filenames in folder
-type Files []string
+// MessageFiles presents list of messages filenames from one dialog
+type MessageFiles []string
 
 // GetFiles returns list of all files in specified folder
-func GetFiles(p string) (Files, error) {
-	res := make(Files, 0)
+func GetFiles(p string) (MessageFiles, error) {
+	res := make(MessageFiles, 0)
 	files, err := ioutil.ReadDir(p)
 	if err != nil {
 		log.Printf("[DEBUG] Could not read \"%s\" directory | %v", p, err)
@@ -52,7 +52,7 @@ func GetNumFromMsgFilename(name string) (int, error) {
 // SortByNumber sorts messages files by number in their name
 // Example: input ["messages50.html", "messages0.html", "messages100.html"]
 //  output: ["messages0.html", "messages50.html", "messages100.html"]
-func SortByNumber(f Files) Files {
+func SortByNumber(f MessageFiles) MessageFiles {
 	// TAKE CARE: if given filename do not have like "messages<some int>.html it may cause undefined behaviour
 	sort.Slice(f, func(i, j int) bool {
 		iNum, iErr := GetNumFromMsgFilename(f[i])
@@ -66,8 +66,8 @@ func SortByNumber(f Files) Files {
 }
 
 // ExcludeFilenames  returns list without given elements
-func ExcludeFilenames(f Files, blackList []string) Files {
-	res := make(Files, 0)
+func ExcludeFilenames(f MessageFiles, blackList []string) MessageFiles {
+	res := make(MessageFiles, 0)
 	for _, name := range f {
 		if !IsNameInList(name, blackList) {
 			res = append(res, name)
@@ -78,7 +78,7 @@ func ExcludeFilenames(f Files, blackList []string) Files {
 
 // Extract start extraction and building process
 func Extract(p string) error {
-	dialogs := make(map[string]Files)
+	dialogs := make(map[string]MessageFiles)
 	dialogList, err := GetFiles(p)
 	if err != nil {
 		log.Printf("[ERROR] Could not get files from message folder | %v", err)
