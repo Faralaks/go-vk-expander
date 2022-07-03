@@ -14,6 +14,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // excludeDSStore can be passed to ExcludeFilename func
@@ -101,9 +102,18 @@ func Extract(ctx context.Context, p string) error {
 		msgList = SortByNumber(msgList)
 		dialogs = append(dialogs, NewDialog(msgList))
 	}
-	fileDecoder := files_decoder.NewDecoderWin1251ToUTF8()
-	CreateDecoderRunners(ctx, fileDecoder, 3)
 
+	fileDecoder := files_decoder.NewDecoderWin1251ToUTF8()
+	decodeCtx, decoderCancel := context.WithCancel(ctx)
+	decoderChan := CreateDecoderRunners(decodeCtx, fileDecoder, 3)
+
+	go func() {
+		for _, dialog := range dialogs {
+			decoderChan <- dialog
+		}
+		decoderCancel()
+	}()
+	time.Sleep(3 * time.Second)
 	return nil
 }
 

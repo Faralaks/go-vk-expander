@@ -8,9 +8,11 @@ import (
 	. "github.com/faralaks/go-vk-expander/app/html_builder/dialog_files"
 )
 
+// DecoderWin1251ToUTF8 Implementation of DecoderRunner which decodes from windows-1251 to UTF-8
 type DecoderWin1251ToUTF8 struct {
 }
 
+//Run Decoder Runner
 func (d DecoderWin1251ToUTF8) Run(ctx context.Context, dialogsChan chan *Dialog) {
 	for {
 		select {
@@ -19,7 +21,6 @@ func (d DecoderWin1251ToUTF8) Run(ctx context.Context, dialogsChan chan *Dialog)
 			return
 		case dialog := <-dialogsChan:
 			println(dialog.GetFileList()[0])
-
 		}
 	}
 }
