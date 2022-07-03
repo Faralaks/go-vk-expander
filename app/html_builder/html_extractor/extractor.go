@@ -6,6 +6,7 @@ package html_extractor
 import (
 	"context"
 	"fmt"
+	"github.com/faralaks/go-vk-expander/app/html_builder/html_extractor/files_decoder"
 	log "github.com/go-pkgz/lgr"
 	"io/ioutil"
 	"path/filepath"
@@ -15,6 +16,7 @@ import (
 	"sync"
 )
 
+// excludeDSStore can be passed to ExcludeFilename func
 var excludeDSStore = []string{".DS_Store"}
 
 // MsgFiles presents list of messages filenames from one dialog
@@ -27,12 +29,16 @@ type Dialog struct {
 	sync.Mutex
 }
 
-func NewDialog(msgFiles MsgFiles) Dialog {
-	return Dialog{MsgFiles: msgFiles}
+func NewDialog(msgFiles MsgFiles) *Dialog {
+	return &Dialog{MsgFiles: msgFiles}
 }
 
 func (d *Dialog) GetFileList() []string {
 	return d.MsgFiles
+}
+
+type DecoderRunner interface {
+	run(chan *Dialog)
 }
 
 // GetFiles returns list of all files in specified folder
@@ -95,7 +101,7 @@ func ExcludeFilenames(f MsgFiles, blackList []string) MsgFiles {
 
 // Extract start extraction and building process
 func Extract(_ context.Context, p string) error {
-	dialogs := make([]Dialog, 0)
+	dialogs := make([]*Dialog, 0)
 	dialogList, err := GetFiles(p)
 	if err != nil {
 		log.Printf("[ERROR] Could not get files from message folder | %v", err)
@@ -112,6 +118,15 @@ func Extract(_ context.Context, p string) error {
 		msgList = SortByNumber(msgList)
 		dialogs = append(dialogs, NewDialog(msgList))
 	}
+	_ = files_decoder.NewDecoderWin1251ToUTF8()
 
 	return nil
+}
+
+func CreateDecoderRunners(_ context.Context, decoder DecoderRunner, count int) chan *Dialog {
+	dialogsChan := make(chan *Dialog)
+	for i := 0; i < count; i++ {
+		go decoder.run(dialogsChan)
+	}
+	return dialogsChan
 }
