@@ -15,8 +15,10 @@ import (
 
 var excludeDSStore = []string{".DS_Store"}
 
+// Files will be presents list of filenames in folder
 type Files []string
 
+// GetFiles returns list of all files in specified folder
 func GetFiles(p string) (Files, error) {
 	res := make(Files, 0)
 	files, err := ioutil.ReadDir(p)
@@ -30,22 +32,28 @@ func GetFiles(p string) (Files, error) {
 	return res, nil
 }
 
+//IsNameInList checks name existence in list
 func IsNameInList(name string, list []string) bool {
 	for _, listName := range list {
 		if name == listName {
 			return true
 		}
 	}
-
 	return false
 }
 
+// GetNumFromMsgFilename returns int value from messages file name.
+// Example: input: "messages123.html" output: 123
 func GetNumFromMsgFilename(name string) (int, error) {
 	num := strings.TrimPrefix(strings.TrimSuffix(name, ".html"), "messages")
 	return strconv.Atoi(num)
 }
 
+// SortByNumber sorts messages files by number in their name
+// Example: input ["messages50.html", "messages0.html", "messages100.html"]
+//  output: ["messages0.html", "messages50.html", "messages100.html"]
 func SortByNumber(f Files) Files {
+	// TAKE CARE: if given filename do not have like "messages<some int>.html it may cause undefined behaviour
 	sort.Slice(f, func(i, j int) bool {
 		iNum, iErr := GetNumFromMsgFilename(f[i])
 		jNum, jErr := GetNumFromMsgFilename(f[j])
@@ -57,6 +65,7 @@ func SortByNumber(f Files) Files {
 	return f
 }
 
+// ExcludeFilenames  returns list without given elements
 func ExcludeFilenames(f Files, blackList []string) Files {
 	res := make(Files, 0)
 	for _, name := range f {
@@ -67,6 +76,7 @@ func ExcludeFilenames(f Files, blackList []string) Files {
 	return res
 }
 
+// Extract start extraction and building process
 func Extract(p string) error {
 	dialogs := make(map[string]Files)
 	dialogList, err := GetFiles(p)
