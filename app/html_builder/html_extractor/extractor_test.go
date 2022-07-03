@@ -1,6 +1,7 @@
 package html_extractor
 
 import (
+	. "github.com/faralaks/go-vk-expander/app/html_builder/dialog_files"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

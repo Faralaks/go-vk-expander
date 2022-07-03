@@ -6,6 +6,7 @@ package html_extractor
 import (
 	"context"
 	"fmt"
+	. "github.com/faralaks/go-vk-expander/app/html_builder/dialog_files"
 	"github.com/faralaks/go-vk-expander/app/html_builder/html_extractor/files_decoder"
 	log "github.com/go-pkgz/lgr"
 	"io/ioutil"
@@ -13,34 +14,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 // excludeDSStore can be passed to ExcludeFilename func
 var excludeDSStore = []string{".DS_Store"}
 
-// MsgFiles presents list of messages filenames from one dialog
-type MsgFiles []string
-
-// Dialog presents messages file list from one dialog amd following mutex
-// implements file_decoder.FileListGetter
-type Dialog struct {
-	MsgFiles
-	sync.Mutex
-}
-
-func NewDialog(msgFiles MsgFiles) *Dialog {
-	return &Dialog{MsgFiles: msgFiles}
-}
-
-// GetFileList returns list of msg filenames
-func (d *Dialog) GetFileList() []string {
-	return d.MsgFiles
-}
-
 // DecoderRunner provides function run which can start one decoder runner
 type DecoderRunner interface {
-	run(chan *Dialog)
+	Run(context.Context, chan *Dialog)
 }
 
 // GetFiles returns list of all files in specified folder
@@ -102,15 +83,15 @@ func ExcludeFilenames(f MsgFiles, blackList []string) MsgFiles {
 }
 
 // Extract start extraction and building process
-func Extract(_ context.Context, p string) error {
+func Extract(ctx context.Context, p string) error {
 	dialogs := make([]*Dialog, 0)
-	dialogList, err := GetFiles(p)
+	dialogFiles, err := GetFiles(p)
 	if err != nil {
 		log.Printf("[ERROR] Could not get files from message folder | %v", err)
 		return fmt.Errorf("could not get files from message folder | %v", err)
 	}
-	dialogList = ExcludeFilenames(dialogList, excludeDSStore)
-	for _, dialog := range dialogList {
+	dialogFiles = ExcludeFilenames(dialogFiles, excludeDSStore)
+	for _, dialog := range dialogFiles {
 		msgList, err := GetFiles(filepath.Join(p, dialog))
 		if err != nil {
 			log.Printf("[ERROR] Could not get files from message folder | %v", err)
@@ -120,15 +101,16 @@ func Extract(_ context.Context, p string) error {
 		msgList = SortByNumber(msgList)
 		dialogs = append(dialogs, NewDialog(msgList))
 	}
-	_ = files_decoder.NewDecoderWin1251ToUTF8()
+	fileDecoder := files_decoder.NewDecoderWin1251ToUTF8()
+	CreateDecoderRunners(ctx, fileDecoder, 3)
 
 	return nil
 }
 
-func CreateDecoderRunners(_ context.Context, decoder DecoderRunner, count int) chan *Dialog {
+func CreateDecoderRunners(ctx context.Context, decoder DecoderRunner, count int) chan *Dialog {
 	dialogsChan := make(chan *Dialog)
 	for i := 0; i < count; i++ {
-		go decoder.run(dialogsChan)
+		go decoder.Run(ctx, dialogsChan)
 	}
 	return dialogsChan
 }
