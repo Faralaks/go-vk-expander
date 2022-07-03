@@ -44,13 +44,13 @@ func main() {
 	setupLog(config.App.Debug)
 	log.Printf("[DEBUG] Log setup Done!")
 	log.Printf("[DEBUG] Config: %+v", config)
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		// catch signal and invoke graceful termination
 		stop := make(chan os.Signal, 1)
 		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 		<-stop
-		ctx.Done()
+		cancel()
 		log.Printf("[WARN] interrupt signal")
 	}()
 
