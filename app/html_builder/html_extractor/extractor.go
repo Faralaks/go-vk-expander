@@ -4,6 +4,7 @@
 package html_extractor
 
 import (
+	"context"
 	"fmt"
 	log "github.com/go-pkgz/lgr"
 	"io/ioutil"
@@ -88,7 +89,7 @@ func ExcludeFilenames(f MsgFiles, blackList []string) MsgFiles {
 }
 
 // Extract start extraction and building process
-func Extract(p string) error {
+func Extract(_ context.Context, p string) error {
 	dialogs := make(map[string]Dialog)
 	dialogList, err := GetFiles(p)
 	if err != nil {

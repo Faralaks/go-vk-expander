@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	extractor "github.com/faralaks/go-vk-expander/app/html_builder/html_extractor"
 	log "github.com/go-pkgz/lgr"
 	"github.com/umputun/go-flags"
@@ -43,22 +44,23 @@ func main() {
 	setupLog(config.App.Debug)
 	log.Printf("[DEBUG] Log setup Done!")
 	log.Printf("[DEBUG] Config: %+v", config)
-
+	ctx := context.Background()
 	go func() {
 		// catch signal and invoke graceful termination
 		stop := make(chan os.Signal, 1)
 		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 		<-stop
+		ctx.Done()
 		log.Printf("[WARN] interrupt signal")
 	}()
 
-	run("Archive/messages")
+	run(ctx, "Archive/messages")
 	println("\t <--- Faralaks Vk-Expander finished!!!")
 }
 
 // run: Starts working process. Takes path ro vk messages directory
-func run(path string) {
-	_ = extractor.Extract(path)
+func run(ctx context.Context, path string) {
+	_ = extractor.Extract(ctx, path)
 }
 
 func setupLog(debug bool) {
