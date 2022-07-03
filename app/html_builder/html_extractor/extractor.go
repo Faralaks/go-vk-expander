@@ -33,10 +33,12 @@ func NewDialog(msgFiles MsgFiles) *Dialog {
 	return &Dialog{MsgFiles: msgFiles}
 }
 
+// GetFileList returns list of msg filenames
 func (d *Dialog) GetFileList() []string {
 	return d.MsgFiles
 }
 
+// DecoderRunner provides function run which can start one decoder runner
 type DecoderRunner interface {
 	run(chan *Dialog)
 }
