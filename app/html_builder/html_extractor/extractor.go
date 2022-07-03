@@ -11,12 +11,23 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var excludeDSStore = []string{".DS_Store"}
 
 // MsgFiles presents list of messages filenames from one dialog
 type MsgFiles []string
+
+// Dialog presents messages file list from one dialog amd following mutex
+type Dialog struct {
+	MsgFiles
+	sync.Mutex
+}
+
+func NewDialog(msgFiles MsgFiles) Dialog {
+	return Dialog{MsgFiles: msgFiles}
+}
 
 // GetFiles returns list of all files in specified folder
 func GetFiles(p string) (MsgFiles, error) {
@@ -78,7 +89,7 @@ func ExcludeFilenames(f MsgFiles, blackList []string) MsgFiles {
 
 // Extract start extraction and building process
 func Extract(p string) error {
-	dialogs := make(map[string]MsgFiles)
+	dialogs := make(map[string]Dialog)
 	dialogList, err := GetFiles(p)
 	if err != nil {
 		log.Printf("[ERROR] Could not get files from message folder | %v", err)
@@ -93,12 +104,8 @@ func Extract(p string) error {
 		}
 		msgList = ExcludeFilenames(msgList, excludeDSStore)
 		msgList = SortByNumber(msgList)
-		dialogs[dialog] = msgList
-	}
-	for k, v := range dialogs {
-		fmt.Printf("Dialog: %v, Filse: %v\n", k, v)
+		dialogs[dialog] = NewDialog(msgList)
 	}
 
 	return nil
-
 }
