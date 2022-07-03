@@ -95,7 +95,7 @@ func ExcludeFilenames(f MsgFiles, blackList []string) MsgFiles {
 
 // Extract start extraction and building process
 func Extract(_ context.Context, p string) error {
-	dialogs := make(map[string]Dialog)
+	dialogs := make([]Dialog, 0)
 	dialogList, err := GetFiles(p)
 	if err != nil {
 		log.Printf("[ERROR] Could not get files from message folder | %v", err)
@@ -110,7 +110,7 @@ func Extract(_ context.Context, p string) error {
 		}
 		msgList = ExcludeFilenames(msgList, excludeDSStore)
 		msgList = SortByNumber(msgList)
-		dialogs[dialog] = NewDialog(msgList)
+		dialogs = append(dialogs, NewDialog(msgList))
 	}
 
 	return nil
