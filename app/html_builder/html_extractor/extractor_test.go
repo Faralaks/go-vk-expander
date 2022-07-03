@@ -13,13 +13,13 @@ func TestIsNameInList(t *testing.T) {
 	assert.False(t, res)
 }
 
-func TestFiles_ExcludeFilenames(t *testing.T) {
-	files := Files{"bob", "bob", "rob", "robert", "bert"}
+func TestExcludeFilenames(t *testing.T) {
+	files := MessageFiles{"bob", "bob", "rob", "robert", "bert"}
 	res := ExcludeFilenames(files, []string{"bob", "rob"})
-	assert.EqualValues(t, Files{"robert", "bert"}, res)
+	assert.EqualValues(t, MessageFiles{"robert", "bert"}, res)
 
 	res = ExcludeFilenames(files, []string{"homer"})
-	assert.EqualValues(t, Files{"bob", "bob", "rob", "robert", "bert"}, res)
+	assert.EqualValues(t, MessageFiles{"bob", "bob", "rob", "robert", "bert"}, res)
 }
 
 func TestGetNumFromMsgFilename(t *testing.T) {
@@ -33,9 +33,9 @@ func TestGetNumFromMsgFilename(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestFiles_SortByNumber(t *testing.T) {
-	files := Files{"messages50.html", "messages0.html", "messages100.html"}
+func TestSortByNumber(t *testing.T) {
+	files := MessageFiles{"messages50.html", "messages0.html", "messages100.html"}
 	res := SortByNumber(files)
-	assert.EqualValues(t, Files{"messages0.html", "messages50.html", "messages100.html"}, res)
+	assert.EqualValues(t, MessageFiles{"messages0.html", "messages50.html", "messages100.html"}, res)
 
 }
