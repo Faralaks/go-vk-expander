@@ -29,33 +29,27 @@ var version = "unknown"
 func main() {
 	println("\t ---> Faralaks Vk-Expander starting! Version: " + version)
 
-	// Loading configuration
-	p := flags.NewParser(&config, flags.PrintErrors|flags.PassDoubleDash|flags.HelpFlag)
-	if _, err := p.Parse(); err != nil {
+	// Load configuration
+	flagParser := flags.NewParser(&config, flags.PrintErrors|flags.PassDoubleDash|flags.HelpFlag)
+	if _, err := flagParser.Parse(); err != nil {
 		if err.(*flags.Error).Type != flags.ErrHelp {
 			println("[ERROR] cli error: %v", err)
 		}
 		os.Exit(2)
 	}
 	if config.App.InDocker {
-		os.Clearenv() // Clear Environment. Now only this process has this data
+		os.Clearenv() // Now only this process has config data
 	}
 
 	setupLog(config.App.Debug)
 	log.Printf("[DEBUG] Log setup Done!")
-	log.Printf("[DEBUG] Config: %+v", config)
+
 	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		// catch signal and invoke graceful termination
-		stop := make(chan os.Signal, 1)
-		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-		<-stop
-		cancel()
-		log.Printf("[WARN] interrupt signal")
-	}()
+	go interruptSyscallCatcher(cancel)
 
 	run(ctx, "Archive/messages")
-	println("\t <--- Faralaks Vk-Expander finished!!!")
+
+	println("\n\t <--- Faralaks Vk-Expander finished!!!")
 }
 
 // run: Starts working process. Takes path ro vk messages directory
@@ -69,4 +63,13 @@ func setupLog(debug bool) {
 		return
 	}
 	log.Setup(log.Msec, log.LevelBraces)
+}
+
+func interruptSyscallCatcher(cancel context.CancelFunc) {
+	// catch signal and invoke graceful termination
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	<-stop
+	cancel()
+	log.Printf("[WARN] interrupt signal")
 }
