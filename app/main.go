@@ -24,10 +24,10 @@ var config struct {
 		RedirectURL  string `long:"redirect_url" env:"REDIRECT_URL" required:"true"  description:"string | VK OAuth full Redirect URL"`
 	} `group:"oauth" namespace:"oauth" env-namespace:"VKEXP_OAUTH"`
 }
-var version = "unknown"
+var revision = "unknown"
 
 func main() {
-	println("\t ---> Faralaks Vk-Expander starting! Version: " + version)
+	println("\t ---> Faralaks Vk-Expander starting! Version: " + revision)
 
 	// Load configuration
 	flagParser := flags.NewParser(&config, flags.PrintErrors|flags.PassDoubleDash|flags.HelpFlag)
@@ -45,14 +45,12 @@ func main() {
 	log.Printf("[DEBUG] Log setup Done!")
 
 	ctx, cancel := context.WithCancel(context.Background())
-	go interruptSyscallCatcher(cancel)
-
+	go cancelOnInterruptSyscall(cancel)
 	run(ctx, "Archive/messages")
 
 	println("\n\t <--- Faralaks Vk-Expander finished!!!")
 }
 
-// run: Starts working process. Takes path ro vk messages directory
 func run(ctx context.Context, path string) {
 	_ = extractor.Extract(ctx, path)
 }
@@ -65,8 +63,8 @@ func setupLog(debug bool) {
 	log.Setup(log.Msec, log.LevelBraces)
 }
 
-func interruptSyscallCatcher(cancel context.CancelFunc) {
-	// catch signal and invoke graceful termination
+// cancelOnInterruptSyscall catch signal and invoke graceful termination
+func cancelOnInterruptSyscall(cancel context.CancelFunc) {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 	<-stop
